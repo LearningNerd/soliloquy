@@ -1,0 +1,18 @@
+{
+ "vim": ["Today I learned this cool thing: you can do x y z things in vim and it's super easy!!!"],
+
+  "til": ["Today I learned this cool thing: you can do x y z things in vim and it's super easy!!!"],
+
+  "electronics": ["Oh and my friend shared thi cool link with me: https://example.com super cool idea!"],
+
+  "raspberrypi": ["Oh and my friend shared thi cool link with me: https://example.com super cool idea!"],
+
+  "video": [
+    "This thing was hilarious... gotta remember this for later.",
+
+    "Oh and my friend shared thi cool link with me: https://example.com super cool idea!"
+  ],
+
+  "funny": ["This thing was hilarious... gotta remember this for later."]
+}
+
