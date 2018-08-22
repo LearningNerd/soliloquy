@@ -1,0 +1,22 @@
+{
+  "name": "soliloquy",
+  "version": "1.0.0",
+  "description": "A note-taking and organizational tool based on stream-of-consciousness writing. Very much experimental, work in progress!",
+  "main": "jsontofiles.js",
+  "bin": {
+    "note": "./notecli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LearningNerd/soliloquy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LearningNerd/soliloquy/issues"
+  },
+  "homepage": "https://github.com/LearningNerd/soliloquy#readme"
+}
