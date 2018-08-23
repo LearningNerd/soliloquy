@@ -28,5 +28,5 @@ Not sure what I would do with code snippets but that would be cool for a future 
 
 Oh, don't forget about integratind MDX (Markdown with JSX mixed in!) for more cool possibilities!
 
-And I guess that's enough for this example!
+And I guess that's enough for this example!!
 

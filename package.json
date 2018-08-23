@@ -18,5 +18,6 @@
   "bugs": {
     "url": "https://github.com/LearningNerd/soliloquy/issues"
   },
-  "homepage": "https://github.com/LearningNerd/soliloquy#readme"
+  "homepage": "https://github.com/LearningNerd/soliloquy#readme",
+  "dependencies": {}
 }

@@ -1,4 +1,4 @@
-// This will construct an object with categorized notes, parsed from a notes file!
+// This will convert a notes file to a JSON file with notes categorized and grouped by tag
 const fs = require('fs');
 console.log("engage!");
 

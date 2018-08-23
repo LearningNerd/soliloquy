@@ -4,9 +4,14 @@ const fs = require('fs');
 const os = require('os');
 
 const HOME = os.homedir();
-// const NOTES_DIR = HOME + '/Notes/learning-notes/';
-const NOTES_DIR = './';
-const ALL_NOTES_FILE = './allnotes.md';
+const NOTES_DIR = HOME + '/Notes/learning-notes/';
+
+const currentDate = getCurrentDate();
+const currentDateFriendly = getCurrentDate("friendly");
+const TODAY_NOTES_PATH = NOTES_DIR + currentDate + ".md"
+
+
+const DAILY_TEMPLATE = "# Daily Notes for " + currentDateFriendly + "\n\n";
 
 // Parse user args
 let noteData = parseArgs();
@@ -16,31 +21,41 @@ let allFiles = getFiles(NOTES_DIR);
 console.log("all files:");
 console.log(allFiles);
 
+/*
 // Generate list of files that match the given tags
 let filesToAppend = allFiles.filter(file => {
+
+  let fileName = file.slice(0,-3).toLowerCase();
   //console.log(file + " ----");
   //console.log(noteData.tags);
+
   for (let tag of noteData.tags) {
 //    console.log("check: " + tag + " in " + file + " ?");
-    if (file.includes(tag)) return true;
+    let tag = tag.toLowerCase();
+    if (tag === fileName) return true;
   }
 });
+*/
 
-console.log("files to append:");
-console.log(filesToAppend);
+console.log("tags to append:");
+console.log(noteData.tags);
 
 console.log(noteData);
 
-// Append to ALLNOTES file (chronological), with current time:
-appendNote("**" + getCurrentTime() + ":** " + noteData.note + "\n\n", ALL_NOTES_FILE);
+// Append to file for current day, with current time:
+appendOrCreateNote("[" + getCurrentTime() + "] " + noteData.note + "\n\n", TODAY_NOTES_PATH, DAILY_TEMPLATE);
 
-// Append to each file matching the given tags
-filesToAppend.forEach(fileToAppend => {
+// Append to each tag file (or create them), with current date:
+noteData.tags.forEach(tag => {
 
   console.log("=========");
   console.log(noteData.note);
 
-  appendNote(noteData.note, NOTES_DIR + fileToAppend);
+  // For creating new tag files: generate tag title: upper-case first letter, remove .md
+  let tagTitle = tag.charAt(0).toUpperCase() + tag.slice(1, -3);
+  let tagTemplate = "# " + tagTitle + " Notes" + "\n\n";
+
+  appendOrCreateNote("[" + currentDate + "] " + noteData.note + "\n\n", NOTES_DIR + tag, tagTemplate);
 
 });
 
@@ -99,14 +114,40 @@ function tagToFileName (tag, files) {
 
 
 
-// Append to file
-function appendNote (dataToAppend, filePath) {
-  fs.appendFile(filePath, dataToAppend, 'utf8', (error) => {
-    if (error) throw error;
-    console.log("File saved: " + filePath);
-  });
-  
+// Append to file, or create a new file from template and then append. filePath must be a full path, not just file name!
+function appendOrCreateNote (dataToAppend, filePath, notesTemplate) {
+
+  // If specified file doesn't already exist, create it from template 
+  if ( !fs.existsSync(filePath) ) {
+    fs.writeFile(filePath, notesTemplate + dataToAppend, 'utf8', (error) => {
+      if (error) throw error;
+      console.log("File created and saved: " + filePath);
+    }); 
+  } else {
+
+    fs.appendFile(filePath, dataToAppend, 'utf8', (error) => {
+      if (error) throw error;
+      console.log("File saved: " + filePath);
+    });
+ } 
 }
+
+// Formats: friendly ... or default: yyyy-mm-dd
+function getCurrentDate(format) {
+  let d = new Date();
+
+  if (format === "friendly") {
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return d.toLocaleDateString('en-us', options);
+  }
+
+  let mm = zeroPad(d.getMonth() + 1);
+  let dd = zeroPad(d.getDate());
+  let yyyy = d.getFullYear();
+
+  return yyyy + '-' + mm + '-' + dd;
+}
+
 
 function getCurrentTime() {
   let currentDate = new Date();
@@ -116,7 +157,13 @@ function getCurrentTime() {
   // dataToAppend = "**" + timeString + ":** " + dataToAppend + "\n\n";
 
   return timeString;
+}
 
+// n must be a number or number-like string
+function zeroPad(n){
+  let num = parseInt(n, 10);
+  let str = String(n);
+  return n < 10 ? '0' + str : str;
 }
 
 // Source: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
