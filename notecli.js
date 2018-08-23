@@ -13,51 +13,81 @@ const TODAY_NOTES_PATH = NOTES_DIR + currentDate + ".md"
 
 const DAILY_TEMPLATE = "# Daily Notes for " + currentDateFriendly + "\n\n";
 
-// Parse user args
-let noteData = parseArgs();
-// Get list of all files in the notes folder
-let allFiles = getFiles(NOTES_DIR);
 
-console.log("all files:");
-console.log(allFiles);
+const { spawn } = require('child_process');
 
-/*
-// Generate list of files that match the given tags
-let filesToAppend = allFiles.filter(file => {
+// If no arguments supplied, then just open today's notes file:
+if (process.argv.length <= 2) {
+  console.log("Opening notes file for " + currentDateFriendly);
 
-  let fileName = file.slice(0,-3).toLowerCase();
-  //console.log(file + " ----");
-  //console.log(noteData.tags);
+  let editor = process.env.EDITOR || 'vi';
+  
+  let child = spawn(editor, [TODAY_NOTES_PATH], {
+      stdio: 'inherit'
+  });
+  
+  child.on('exit', function (e, code) {
+      console.log("finished");
+  });
+  
+  
+  child.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+  
 
-  for (let tag of noteData.tags) {
-//    console.log("check: " + tag + " in " + file + " ?");
-    let tag = tag.toLowerCase();
-    if (tag === fileName) return true;
-  }
-});
-*/
+// Otherwise, parse the arguments and act accordingly!
+} else {
 
-console.log("tags to append:");
-console.log(noteData.tags);
+  // Parse user args
+  let noteData = parseArgs();
 
-console.log(noteData);
+  // If no note was supplied (only tags), then open the chosen note files
+  if (!noteData.note) {
+    console.log("Opening notes file for " + noteData.tags[0]);
 
-// Append to file for current day, with current time:
-appendOrCreateNote("[" + getCurrentTime() + "] " + noteData.note + "\n\n", TODAY_NOTES_PATH, DAILY_TEMPLATE);
+    let editor = process.env.EDITOR || 'vi';
+    
+    let child = spawn(editor, [NOTES_DIR + noteData.tags[0]], {
+        stdio: 'inherit'
+    });
+    
+    child.on('exit', function (e, code) {
+        console.log("finished");
+    });
+    
+    
+    child.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
+   
+  // If a note was supplied, append it to files accordingly!
+  } else {
 
-// Append to each tag file (or create them), with current date:
-noteData.tags.forEach(tag => {
+    // Get list of all files in the notes folder
+    let allFiles = getFiles(NOTES_DIR);
+    
+    console.log(noteData);
+    
+    // Append to file for current day, with current time:
+    appendOrCreateNote("[" + getCurrentTime() + "] " + noteData.note + "\n\n", TODAY_NOTES_PATH, DAILY_TEMPLATE);
+    
+    // Append to each tag file (or create them), with current date:
+    noteData.tags.forEach(tag => {
+      console.log("=========");
+      console.log(noteData.note);
+    
+      // For creating new tag files: generate tag title: upper-case first letter, remove .md
+      let tagTitle = tag.charAt(0).toUpperCase() + tag.slice(1, -3);
+      let tagTemplate = "# " + tagTitle + " Notes" + "\n\n";
+    
+      appendOrCreateNote("[" + currentDate + "] " + noteData.note + "\n\n", NOTES_DIR + tag, tagTemplate);
+    });
 
-  console.log("=========");
-  console.log(noteData.note);
+  }//end else (note was supplied)
 
-  // For creating new tag files: generate tag title: upper-case first letter, remove .md
-  let tagTitle = tag.charAt(0).toUpperCase() + tag.slice(1, -3);
-  let tagTemplate = "# " + tagTitle + " Notes" + "\n\n";
+}//end else (more than 3 arguments given)
 
-  appendOrCreateNote("[" + currentDate + "] " + noteData.note + "\n\n", NOTES_DIR + tag, tagTemplate);
-
-});
 
 
 // Parse arguments supplied when running this file as a command
@@ -81,11 +111,6 @@ function parseArgs() {
  // console.log(tags);
   //console.log(noteString);
   
-  // Minimal error handling: a non-empty note is required!
-  if (!noteString) {
-    console.log("Please include a note surrounded by quote marks.");
-  }
-
   return {note: noteString, tags: tags};
 
 }//end parseArgs
