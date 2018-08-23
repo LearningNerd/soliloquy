@@ -4,7 +4,9 @@ const fs = require('fs');
 const os = require('os');
 
 const HOME = os.homedir();
-const NOTES_DIR = HOME + '/Notes/learning-notes/';
+// const NOTES_DIR = HOME + '/Notes/learning-notes/';
+const NOTES_DIR = './';
+const ALL_NOTES_FILE = './allnotes.md';
 
 // Parse user args
 let noteData = parseArgs();
@@ -28,6 +30,9 @@ console.log("files to append:");
 console.log(filesToAppend);
 
 console.log(noteData);
+
+// Append to ALLNOTES file (chronological), with current time:
+appendNote("**" + getCurrentTime() + ":** " + noteData.note + "\n\n", ALL_NOTES_FILE);
 
 // Append to each file matching the given tags
 filesToAppend.forEach(fileToAppend => {
@@ -96,14 +101,6 @@ function tagToFileName (tag, files) {
 
 // Append to file
 function appendNote (dataToAppend, filePath) {
-/*
-  let currentDate = new Date();
-  let timeString = currentDate.toLocaleTimeString('en-us');
-  timeString = timeString.slice(0,4) + timeString.slice(7);
-
-  dataToAppend = "**" + timeString + ":** " + dataToAppend + "\n\n";
-*/
-
   fs.appendFile(filePath, dataToAppend, 'utf8', (error) => {
     if (error) throw error;
     console.log("File saved: " + filePath);
@@ -111,7 +108,16 @@ function appendNote (dataToAppend, filePath) {
   
 }
 
+function getCurrentTime() {
+  let currentDate = new Date();
+  let timeString = currentDate.toLocaleTimeString('en-us');
+  timeString = timeString.slice(0,4) + timeString.slice(7);
 
+  // dataToAppend = "**" + timeString + ":** " + dataToAppend + "\n\n";
+
+  return timeString;
+
+}
 
 // Source: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
 /* 
